@@ -24,8 +24,10 @@ pipeline {
 
         stage('Build and Run Tests') {
             steps {
-                sh 'mvn clean test -Dheadless=true'
-                echo 'Đã chạy mvn clean test thành công.'
+                dir('selenium-CICD') {
+                    sh 'mvn clean test -Dheadless=true'
+                    echo 'Đã chạy mvn clean test thành công.'
+                }
             }
         }
 
@@ -37,7 +39,9 @@ pipeline {
         always {
             echo 'Build đã hoàn tất. Bắt đầu xuất bản báo cáo...'
             // Xuất bản báo cáo kết quả test từ file XML do Maven Surefire tạo ra
-            junit 'target/surefire-reports/**/*.xml'
+            dir('selenium-CICD') {
+                junit 'target/surefire-reports/**/*.xml'
+            }
         }
         success {
             echo '✅ Build thành công!'
