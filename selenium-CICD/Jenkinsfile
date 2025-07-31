@@ -1,17 +1,49 @@
 // Jenkinsfile
 pipeline {
+    // 1. Chỉ định môi trường thực thi
     agent any // Chạy trên bất kỳ agent nào có sẵn
 
+    // 2. Cấu hình công cụ (Tools)
+    tools {
+        // Đảm bảo có một bản cài đặt Maven tên là 'Maven-3.8.6' trong Jenkins Global Tool Configuration
+        maven 'Maven-3.8.6'
+        // Đảm bảo có một bản cài đặt JDK tên là 'JDK-11' trong Jenkins Global Tool Configuration
+        jdk 'JDK-11'
+    }
+
+    // 3. Định nghĩa các giai đoạn (Stages)
     stages {
-        stage('Hello') {
+        // Giai đoạn: Lấy mã nguồn
+        stage('Checkout Code') {
             steps {
-                echo 'Chào bạn, đây là pipeline đầu tiên của tôi!'
+                // Tự động lấy code từ repository đã cấu hình trong Job
+                git credentialsId: 'github-credentials', url: 'https://github.com/thong21012/jenkins-for-tester.git'
+                echo 'Đã checkout code thành công!'
             }
         }
-        stage('Test') {
+
+        stage('Build and Run Tests') {
             steps {
-                echo 'Đây là bước giả lập chạy test...'
+                sh 'mvn clean test -Dheadless=true'
+                echo 'Đã chạy mvn clean test thành công.'
             }
+        }
+
+    }
+
+    // 4. Các hành động sau khi build (Post-build Actions)
+    post {
+        // Luôn luôn thực hiện khối này, dù build thành công hay thất bại
+        always {
+            echo 'Build đã hoàn tất. Bắt đầu xuất bản báo cáo...'
+            // Xuất bản báo cáo kết quả test từ file XML do Maven Surefire tạo ra
+            junit 'target/surefire-reports/**/*.xml'
+        }
+        success {
+            echo '✅ Build thành công!'
+        }
+        failure {
+            echo '❌ Build thất bại.'
         }
     }
 }
