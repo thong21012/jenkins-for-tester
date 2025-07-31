@@ -17,7 +17,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Tự động lấy code từ repository đã cấu hình trong Job
-                git credentialsId: 'github-credentials', url: 'https://github.com/thong21012/jenkins-for-tester.git'
+                git branch: 'main', credentialsId: 'github-credentials', url: 'https://github.com/thong21012/jenkins-for-tester.git'
                 echo 'Đã checkout code thành công!'
             }
         }
